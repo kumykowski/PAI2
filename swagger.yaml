@@ -1,0 +1,257 @@
+openapi: 3.0.0
+info:
+  title: User Management API
+  description: API for managing user accounts
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /users/register:
+    post:
+      summary: Register a new user
+      description: Creates a new user account
+      operationId: registerUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: "Jan Kowalski"
+                email:
+                  type: string
+                  format: email
+                  example: "jan@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "haslo123"
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Użytkownik zarejestrowany"
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1621234567890
+                      name:
+                        type: string
+                        example: "Jan Kowalski"
+                      email:
+                        type: string
+                        example: "jan@example.com"
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        msg:
+                          type: string
+                          example: "Nieprawidłowy email"
+                        param:
+                          type: string
+                          example: "email"
+                        location:
+                          type: string
+                          example: "body"
+  /users/login:
+    post:
+      summary: Login user
+      description: Authenticates a user and returns a token
+      operationId: loginUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "admin@dupa.com"
+                password:
+                  type: string
+                  format: password
+                  example: "dupa123"
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Zalogowano pomyślnie"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Nieprawidłowy email lub hasło"
+  /users/me:
+    get:
+      summary: Get current user profile
+      description: Returns the profile of the currently authenticated user
+      operationId: getCurrentUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "Michał"
+                      email:
+                        type: string
+                        example: "michal@example.com"
+        '401':
+          description: Unauthorized - Invalid or missing authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Nieautoryzowany"
+    put:
+      summary: Update current user profile
+      description: Updates the profile of the currently authenticated user
+      operationId: updateCurrentUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Nowe Imię"
+                email:
+                  type: string
+                  format: email
+                  example: "nowy@email.com"
+      responses:
+        '200':
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dane zaktualizowane"
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "Nowe Imię"
+                      email:
+                        type: string
+                        example: "nowy@email.com"
+        '401':
+          description: Unauthorized - Invalid or missing authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Brak autoryzacji"
+    delete:
+      summary: Delete current user account
+      description: Deletes the currently authenticated user's account
+      operationId: deleteCurrentUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Użytkownik usunięty"
+        '401':
+          description: Unauthorized - Invalid or missing authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Brak autoryzacji"
