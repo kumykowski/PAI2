@@ -36,4 +36,11 @@ export const loginUser = (req: Request, res: Response) => {
   
     res.status(200).json({ message: 'Dane zaktualizowane', user: updatedUser })
   }
+
+export const deleteMe = (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ message: 'Brak autoryzacji' })
+  
+  // Simulate user deletion
+  res.status(200).json({ message: 'Użytkownik usunięty' })
+}
   
