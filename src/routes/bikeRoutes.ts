@@ -1,13 +1,19 @@
-// routes/bikeRoutes.ts
-import { Router } from 'express';
-import { createBike, getBikes, getBikeById, updateBike, deleteBike } from '../controllers/bikeController';
+import { Router } from 'express'
+import {
+  createBike,
+  getBikes,
+  getBikeById,
+  updateBike,
+  deleteBike
+} from '../controllers/bikeController'
+import { validateBike } from '../validators/bikeValidator'
 
-const router = Router();
+const router = Router()
 
-router.post('/', createBike); // Tworzenie roweru
-router.get('/', getBikes); // Pobranie wszystkich rowerów
-router.get('/:id', getBikeById); // Pobranie pojedynczego roweru
-router.put('/:id', updateBike); // Aktualizacja roweru
-router.delete('/:id', deleteBike); // Usunięcie roweru
+router.post('/', validateBike, createBike)
+router.get('/', getBikes)
+router.get('/:id', getBikeById)
+router.put('/:id', validateBike, updateBike)
+router.delete('/:id', deleteBike)
 
-export default router;
+export default router

@@ -1,26 +1,19 @@
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import { Request, Response, NextFunction } from 'express';
-import { CreateBikeDto } from '../dtos/bike.dto';
+import { Request, Response, NextFunction } from 'express'
 
-export const validateCreateBike = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {  // Funkcja musi zwracać void
-  const dto = plainToInstance(CreateBikeDto, req.body);
-  const errors = await validate(dto);
+export const validateBike = (req: Request, res: Response, next: NextFunction) => {
+  const { model, brand, price } = req.body
 
-  if (errors.length > 0) {
-    // Zamiast zwracać Response, bezpośrednio wysyłasz odpowiedź
-    res.status(400).json({
-      errors: errors.map(err => ({
-        property: err.property,
-        errors: Object.values(err.constraints || {}),
-      })),
-    });
+  if (!model || typeof model !== 'string') {
+    return res.status(400).json({ error: 'Nieprawidłowy model' })
   }
 
-  // Przekazujesz sterowanie do następnego middleware
-  next();
-};
+  if (!brand || typeof brand !== 'string') {
+    return res.status(400).json({ error: 'Nieprawidłowa marka' })
+  }
+
+  if (typeof price !== 'number' || price <= 0) {
+    return res.status(400).json({ error: 'Nieprawidłowa cena' })
+  }
+
+  next()
+}
