@@ -6,14 +6,13 @@ import {
   updateBike,
   deleteBike
 } from '../controllers/bikeController'
-import { validateBike } from '../validators/bikeValidator'
 
 const router = Router()
 
-router.post('/', validateBike, createBike)
+router.post('/', createBike)
 router.get('/', getBikes)
 router.get('/:id', getBikeById)
-router.put('/:id', validateBike, updateBike)
+router.put('/:id', updateBike)
 router.delete('/:id', deleteBike)
 
 export default router
