@@ -1,15 +1,19 @@
 import { Router } from 'express'
-import { createBike, getBikes, getBikeById, updateBike, deleteBike } from '../controllers/bikeController'
-import { validateBikeCreation, validateBikeUpdate, validateBikeId } from '../validators/bikeValidator'
-import { mockAuth } from '../middlewares/authMiddleware'
+import {
+  createBike,
+  getBikes,
+  getBikeById,
+  updateBike,
+  deleteBike
+} from '../controllers/bikeController'
+import { validateBike } from '../validators/bikeValidator'
 
 const router = Router()
 
-// Używamy as any dla walidatorów, ponieważ express-validator ma problemy z typowaniem
-router.post('/', mockAuth, ...validateBikeCreation as any[], createBike)
+router.post('/', validateBike, createBike)
 router.get('/', getBikes)
-router.get('/:id', ...validateBikeId as any[], getBikeById)
-router.put('/:id', mockAuth, ...validateBikeId as any[], ...validateBikeUpdate as any[], updateBike)
-router.delete('/:id', mockAuth, ...validateBikeId as any[], deleteBike)
+router.get('/:id', getBikeById)
+router.put('/:id', validateBike, updateBike)
+router.delete('/:id', deleteBike)
 
-export default router 
+export default router

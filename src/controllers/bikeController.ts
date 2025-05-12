@@ -1,93 +1,50 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express';
 
-// Symulacja bazy danych
-let bikes: any[] = []
+let bikes: { id: number, model: string, brand: string, price: number }[] = [];
+let bikeIdCounter = 1;
 
-export const createBike = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const { brand, model, type, size, price } = req.body
-    
-    const newBike = {
-      id: Date.now(),
-      brand,
-      model,
-      type,
-      size,
-      price,
-      createdAt: new Date()
-    }
-    
-    bikes.push(newBike)
-    res.status(201).json({ message: 'Rower dodany pomyślnie', bike: newBike })
-  } catch (error) {
-    next(error)
+export const createBike = (req: Request, res: Response): void => {
+  const { model, brand, price } = req.body;
+  const newBike = { id: bikeIdCounter++, model, brand, price };
+  bikes.push(newBike);
+  res.status(201).json(newBike);
+};
+
+export const getBikes = (req: Request, res: Response): void => {
+  res.json(bikes);
+};
+
+export const getBikeById = (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const bike = bikes.find(b => b.id === parseInt(id));
+  if (!bike) {
+    res.status(404).json({ message: 'Bike not found' });
+    return;
   }
-}
+  res.json(bike);
+};
 
-export const getBikes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    res.json({ bikes })
-  } catch (error) {
-    next(error)
+export const updateBike = (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const bike = bikes.find(b => b.id === parseInt(id));
+  if (!bike) {
+    res.status(404).json({ message: 'Bike not found' });
+    return;
   }
-}
+  const { model, brand, price } = req.body;
+  if (model) bike.model = model;
+  if (brand) bike.brand = brand;
+  if (price) bike.price = price;
+  res.json(bike);
+};
 
-export const getBikeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const bike = bikes.find(b => b.id === parseInt(req.params.id))
-    
-    if (!bike) {
-      res.status(404).json({ message: 'Rower nie znaleziony' })
-      return
-    }
-    
-    res.json({ bike })
-  } catch (error) {
-    next(error)
+export const deleteBike = (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const index = bikes.findIndex(b => b.id === parseInt(id));
+  if (index === -1) {
+    res.status(404).json({ message: 'Bike not found' });
+    return;
   }
-}
-
-export const updateBike = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const { brand, model, type, size, price } = req.body
-    const bikeId = parseInt(req.params.id)
-    
-    const bikeIndex = bikes.findIndex(b => b.id === bikeId)
-    
-    if (bikeIndex === -1) {
-      res.status(404).json({ message: 'Rower nie znaleziony' })
-      return
-    }
-    
-    bikes[bikeIndex] = {
-      ...bikes[bikeIndex],
-      brand: brand || bikes[bikeIndex].brand,
-      model: model || bikes[bikeIndex].model,
-      type: type || bikes[bikeIndex].type,
-      size: size || bikes[bikeIndex].size,
-      price: price || bikes[bikeIndex].price,
-      updatedAt: new Date()
-    }
-    
-    res.json({ message: 'Rower zaktualizowany', bike: bikes[bikeIndex] })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const deleteBike = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const bikeId = parseInt(req.params.id)
-    const bikeIndex = bikes.findIndex(b => b.id === bikeId)
-    
-    if (bikeIndex === -1) {
-      res.status(404).json({ message: 'Rower nie znaleziony' })
-      return
-    }
-    
-    bikes = bikes.filter(b => b.id !== bikeId)
-    res.json({ message: 'Rower usunięty pomyślnie' })
-  } catch (error) {
-    next(error)
-  }
-} 
+  bikes.splice(index, 1);
+  res.status(204).send();
+};
